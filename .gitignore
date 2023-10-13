@@ -1,5 +1,6 @@
 fp16
 half2float
 float2half
+float2half2float
 
 *.o

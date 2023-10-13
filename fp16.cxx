@@ -13,13 +13,16 @@ std::uint16_t fp32_to_fp16(std::uint32_t fp32bits) {
   std::uint16_t sign16 = sign32;
   std::uint16_t exponent16 = exponent32 >> 0x00000003;
   std::uint16_t mantissa16 = mantissa32 >> 0x0000000d;
+  std::uint16_t rest_mantissa = mantissa32 & 0x1fff;
 
-  // exp >= 31 ==> infinity
-  if (exponent16 & 0x0000001f) {
+  if (exponent32 & 0x000000ff && mantissa32) {
+    // exp32 == 255 & mantissa32 > 1 ==> NaN
+    mantissa16 = 0x00000200;
+  } else if (exponent16 & 0x0000001f) {
+    // exp16 >= 31 ==> infinity
     mantissa16 = 0x0;
   } else {
-    // round the mantissa to the nearest even
-    std::uint16_t rest_mantissa = mantissa32 & 0x1fff;
+    // round mantissa16 to the nearest even
     if (rest_mantissa & 0x1000) {
       if (rest_mantissa & 0X0fff || mantissa16 & 0x1) {
         mantissa16 |= 0x1;
@@ -71,6 +74,10 @@ int main(int argc, char const *argv[]) {
     convert_and_print_result(std::numeric_limits<float>::denorm_min());
     std::cout << "======= INF ========" << std::endl;
     convert_and_print_result(std::numeric_limits<float>::infinity());
+    std::cout << "======= NaN ========" << std::endl;
+    convert_and_print_result(std::numeric_limits<float>::signaling_NaN());
+    std::cout << "--------------------" << std::endl;
+    convert_and_print_result(std::numeric_limits<float>::quiet_NaN());
   } else {
     convert_and_print_result(std::atof(argv[1]));
   }

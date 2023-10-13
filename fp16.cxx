@@ -14,10 +14,10 @@ std::uint16_t fp32_to_fp16(std::uint32_t fp32bits) {
   std::uint16_t mantissa16 = mantissa32 >> 0x000d;
   std::uint16_t rest_mantissa = mantissa32 & 0x1fff;
 
-  if (exponent32 & 0x00ff && mantissa32) {
+  if ((exponent32 == 0x00ff) && mantissa32) {
     // exp32 == 255 & mantissa32 > 1 ==> NaN
     mantissa16 = 0x0200;
-  } else if (exponent16 & 0x001f) {
+  } else if (exponent16 == 0x001f) {
     // exp16 >= 31 ==> infinity
     mantissa16 = 0x0000;
   } else {
